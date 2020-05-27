@@ -88,6 +88,35 @@ function GetContainer {
     echoHightlight "[Choice made] Using container: $DOCKER_CON"
 }
 
+# Start the container
+# Parameters:
+# 1st param must be container name
+# Other params are sent directly to docker command.
+function ContainerRun {
+  # Logic:
+  # 1. If no container exists, start in background
+  # 2. container running, attach to it.
+  # 3. otherwise, restart container.
+  name="$1"
+  if [ "$(docker ps -aq -f name=${name})" ]
+  then
+    echo "Container ${name} exists"
+    if [ "$(docker ps -aq -f status=running -f name=${name})" ]
+    then
+      echo "Container ${name} is running, do nothing."
+      #docker container attach "$name"
+    else
+      echo "Container status: $(docker inspect -f '{{.State.Status}}' ${name}), will restart."
+      docker container restart "$name"
+    fi
+    
+  else
+    echo "Starting container ${name} in background."
+    nvidia-docker run -d --name "$@"
+      
+  fi
+}
+
 
 function main() {
     GetImage "test"

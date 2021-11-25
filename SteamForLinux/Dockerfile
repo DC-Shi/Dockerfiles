@@ -1,7 +1,7 @@
-FROM nvidia/cuda:10.0-runtime-ubuntu18.04
+FROM nvidia/cuda:11.4.2-runtime-ubuntu20.04
 
 # Use TUNA mirror to speed up.
-RUN sed -i 's/http:\/\/archive.ubuntu.com\/ubuntu\//https:\/\/mirrors.tuna.tsinghua.edu.cn\/ubuntu\//' /etc/apt/sources.list
+#RUN sed -i 's/http:\/\/archive.ubuntu.com\/ubuntu\//https:\/\/mirrors.tuna.tsinghua.edu.cn\/ubuntu\//' /etc/apt/sources.list
 
 ### Install steam
 RUN dpkg --add-architecture i386 && apt-get update && apt-get install -y libglvnd0 mesa-utils \
@@ -28,6 +28,7 @@ ENV PATH="${PATH}:/usr/games"
 
 # Audio fix
 # https://github.com/webanck/docker-wine-steam/issues/12
+RUN DEBIAN_FRONTEND="noninteractive" apt-get update && apt-get install -y pulseaudio
 RUN sed -i "s/; enable-shm = yes/enable-shm = no/g" /etc/pulse/client.conf
 
 # Add other packages for easier using
@@ -39,7 +40,8 @@ RUN apt-get update && apt-get install -y wget vim \
 ENV DISPLAY :0
 
 # Add user
-RUN groupadd -g 1001 steam && useradd -u 1001 -g 1001 -m steam && echo "steam:steam" | chpasswd && usermod -a -G sudo,audio steam
+ARG userID
+RUN groupadd -g $userID steam && useradd -u $userID -g $userID -m steam && echo "steam:steam" | chpasswd && usermod -a -G sudo,audio steam
 USER steam
 
 # nvidia-container-runtime

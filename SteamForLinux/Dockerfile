@@ -1,8 +1,11 @@
 FROM nvidia/cuda:11.4.2-runtime-ubuntu20.04
+#FROM nvidia/opengl:1.2-glvnd-devel-ubuntu18.04
 
 # Use TUNA mirror to speed up.
 #RUN sed -i 's/http:\/\/archive.ubuntu.com\/ubuntu\//https:\/\/mirrors.tuna.tsinghua.edu.cn\/ubuntu\//' /etc/apt/sources.list
 
+# Add non-interactive install
+ENV DEBIAN_FRONTEND noninteractive
 ### Install steam
 RUN dpkg --add-architecture i386 && apt-get update && apt-get install -y libglvnd0 mesa-utils \
     libgl1-mesa-dri:i386 libgl1-mesa-glx:i386 libc6:i386 \
@@ -19,7 +22,7 @@ RUN dpkg --add-architecture i386 && apt-get update && apt-get install -y libglvn
 # Install locale
 RUN echo 'en_US.UTF-8 UTF-8' >>/etc/locale.gen && \
     echo 'zh_CN.UTF-8 UTF-8' >>/etc/locale.gen && \
-    apt-get update && apt-get install -y locales ttf-wqy-microhei ttf-wqy-zenhei xfonts-wqy
+    apt update && apt install -y locales ttf-wqy-microhei ttf-wqy-zenhei xfonts-wqy tzdata
 ENV LANG en_US.UTF-8  
 ENV LANGUAGE en_US:en  
 ENV LC_ALL en_US.UTF-8

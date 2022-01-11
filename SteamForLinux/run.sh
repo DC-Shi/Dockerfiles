@@ -66,8 +66,9 @@ USER_ID=$(id -u)
 # Enable display for container
 xhost +local:root
 # Start container
-docker run --rm \
-  -it \
+docker run \
+  -d --restart unless-stopped \
+  --runtime=nvidia \
   --gpus all \
   --name ${CONTAINER_NAME} \
   --net=host \
@@ -78,14 +79,16 @@ docker run --rm \
   --device /dev/dri/renderD128 \
   --device /dev/dri/card0 \
   --device /dev/snd \
+  --privileged \
   --volume=/run/user/${USER_ID}/pulse:/run/user/${USER_ID}/pulse \
   -v ~/.config/pulse/cookie:/run/pulse/cookie \
   --volume=${PROFILE_DIR}:/home/steam/ \
   -e PULSE_SERVER=/run/user/${USER_ID}/pulse/native \
   -e PULSE_COOKIE=/run/pulse/cookie \
   -w=/home/steam \
-  ${DOCKER_IMG} 
+  ${DOCKER_IMG} \
+  sleep infinity 
 
 
 # Disable 
-xhost -local:root
+#xhost -local:root
